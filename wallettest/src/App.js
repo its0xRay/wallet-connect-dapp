@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
-// import twitterLogo from './assets/twitter-logo.svg';
+import { AuthProvider } from '@arcana/auth';
 import './App.css';
 
-// Constants
-// const TWITTER_HANDLE = '_buildspace';
-// const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const TEST_GIFS = [
 	'https://i.giphy.com/media/eIG0HfouRQJQr1wBzz/giphy.webp',
 	'https://media3.giphy.com/media/L71a8LW2UrKwPaWNYM/giphy.gif?cid=ecf05e47rr9qizx2msjucl1xyvuu47d7kf25tqt2lvo024uo&rid=giphy.gif&ct=g',
@@ -14,44 +11,67 @@ const TEST_GIFS = [
 
 const App = () => {
   // State
-  const [walletAddress, setWalletAddress] = useState(null);
+  //const [walletAddress, setWalletAddress] = useState(null);
+  const [arcana, setArcana] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
 
-  // Actions
-  const checkIfWalletIsConnected = async () => {
-    if (window?.solana?.isPhantom) {
-      console.log('Phantom wallet found!');
-      const response = await window.solana.connect({ onlyIfTrusted: true });
-      console.log(
-        'Connected with Public Key:',
-        response.publicKey.toString()
-      );
+
+  // Phantom Auth
+  // const checkIfWalletIsConnected = async () => {
+  //   if (window?.solana?.isPhantom) {
+  //     console.log('Phantom wallet found!');
+  //     const response = await window.solana.connect({ onlyIfTrusted: true });
+  //     console.log(
+  //       'Connected with Public Key:',
+  //       response.publicKey.toString()
+  //     ); 
 
       /*
        * Set the user's publicKey in state to be used later!
        */
-      setWalletAddress(response.publicKey.toString());
-    } else {
-      alert('Solana object not found! Get a Phantom Wallet 👻');
+  //     setWalletAddress(response.publicKey.toString());
+  //   } else {
+  //     alert('Solana object not found! Get a Phantom Wallet 👻');
+  //   }
+  // };
+
+  // const connectWallet = async () => {
+  //   const { solana } = window;
+  
+  //   if (solana) {
+  //     const response = await solana.connect();
+  //     console.log('Connected with Public Key:', response.publicKey.toString());
+  //     setWalletAddress(response.publicKey.toString());
+  //   }
+  // };
+
+  const handleArcanaConnect = async () => {
+    if (arcana) {
+      try {
+        await arcana.connect();
+        //setWalletAddress(arcana?.getWalletAddress()?.toString());
+      } catch (error) {
+        console.error('Error connecting to Arcana:', error.message);
+      }
     }
   };
 
-  const connectWallet = async () => {
-    const { solana } = window;
-  
-    if (solana) {
-      const response = await solana.connect();
-      console.log('Connected with Public Key:', response.publicKey.toString());
-      setWalletAddress(response.publicKey.toString());
-    }
-  };
 
   const renderNotConnectedContainer = () => (
-    <button
-      className="cta-button connect-wallet-button"
-      onClick={connectWallet}
-    >
-      Connect to Wallet
-    </button>
+    <div>
+      {/* <button
+        className="cta-button connect-wallet-button"
+        onClick={connectWallet}
+      >
+        Connect to Wallet
+      </button> */}
+      <button
+        className="cta-button connect-arcana-button"
+        onClick={handleArcanaConnect}
+      >
+        Connect with Arcana
+      </button>
+    </div>
   );
 
   const renderConnectedContainer = () => (
@@ -63,32 +83,78 @@ const App = () => {
           </div>
         ))}
       </div>
+      <p>Connected with Arcana</p>
     </div>
   );
 
-  // UseEffects
   useEffect(() => {
-    const onLoad = async () => {
-      await checkIfWalletIsConnected();
+
+    // Initialize Arcana AuthProvider
+    const arcanaAuth = new AuthProvider(
+      "xar_test_7edd0d684ff2d5826395f0558f366bf7ea57662f",
+      {
+        // Additional options as needed
+      position: 'left', // default: right
+      theme: 'light', // default: dark
+      alwaysVisible: false, // default: true, wallet always visible
+      setWindowProvider: true, // default: false, window.ethereum not set
+      connectOptions: {
+        compact: true, // default: false, regular plug-and-play login UI
+      },
+
+      // chainConfig: {
+      //   chainId: '101', // Solana chain ID
+      //   rpcUrl: 'https://api.testnet.solana.com', // Solana RPC URL
+      // },
+    }
+    );
+
+    const initAuth = async () => {
+      try {
+        // logic to check if phanttom wallet is connected
+        // if (window?.solana?.isPhantom) {
+        //   console.log('Phantom wallet found!');
+        //   const response = await window.solana.connect({ onlyIfTrusted: true });
+        //   console.log(
+        //     'Connected with Public Key:',
+        //     response.publicKey.toString()
+        //   );
+        //   setWalletAddress(response.publicKey.toString());
+        // } else {
+        //   alert('Solana object not found! Get a Phantom Wallet 👻');
+        // }
+       
+        await arcanaAuth.init();
+        setArcana(arcanaAuth);
+      } catch (e) {
+        console.error('Error initializing Arcana Auth:', e.message);
+      }
     };
-    window.addEventListener('load', onLoad);
-    return () => window.removeEventListener('load', onLoad);
+  
+    initAuth();
   }, []);
+  
 
   return (
     <div className="App">
       <div className="container">
 			{/* This was solely added for some styling fanciness */}
-			<div className={walletAddress ? 'authed-container' : 'container'}>
-        <div className="header-container">
+			{/* <div className={walletAddress || arcana ? 'authed-container' : 'container'}> */}
+      <div className={!isConnected ? 'container' : 'authed-container'}>
+         <div className="header-container">
           <p className="header">🖼 GIF Portal</p>
           <p className="sub-text">
             View your GIF collection in the metaverse ✨
           </p>
-          {/* Add the condition to show this only if we don't have a wallet address */}
-          {!walletAddress && renderNotConnectedContainer()}
-          {walletAddress && renderConnectedContainer()}
+          {!isConnected && renderNotConnectedContainer()}
+            {isConnected && renderConnectedContainer()}
+          {/* Add the condition to show this only if we don't have a wallet address
+          {(!walletAddress && !arcana) && renderNotConnectedContainer()}
+          {(walletAddress || arcana) && renderConnectedContainer()} */}
         </div>
+
+
+
         {/* <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
           <a
@@ -98,6 +164,8 @@ const App = () => {
             rel="noreferrer"
           >{`built on @${TWITTER_HANDLE}`}</a>
         </div> */}
+
+
       </div>
     </div>
     </div>

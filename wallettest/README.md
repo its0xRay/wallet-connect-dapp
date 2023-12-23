@@ -1,3 +1,9 @@
+the GIF grid will be rendered when the user has connected + authorized their wallet to the dapp
+
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
