@@ -103,7 +103,7 @@ const App = () => {
       },
 
       // chainConfig: {
-      //   chainId: '101', // Solana chain ID
+      //   chainId: '2', // Solana chain ID
       //   rpcUrl: 'https://api.testnet.solana.com', // Solana RPC URL
       // },
     }
