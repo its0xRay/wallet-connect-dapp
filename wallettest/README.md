@@ -1,6 +1,6 @@
-the GIF grid will be rendered when the user has connected + authorized their wallet to the dapp
+It is a project based ion buidspace tutorial. https://buildspace.so/p/build-solana-web3-app/lessons/what-are-we-building
 
-
+The GIF grid will be rendered when the user has connected + authorized their wallet to the dapp
 
 
 
